@@ -2,9 +2,11 @@
 
 Trying to replicate the T-Rex game of Google.
 
+![GOAL](./demo.gif)
+
 # extraction.html
 
-This is a **stand-alone** HTML file running T-Rex!
+The [extraction.html](./extraction.html) a **stand-alone** HTML file running T-Rex!
 
 All codes and assets are extracted from [source code in Chromium](https://cs.chromium.org/chromium/src/components/neterror/?q=t-rex+package:%5Echromium$&dr=C). The original code is released under [BSD](http://www.linfo.org/bsdlicense.html).
 
