@@ -236,7 +236,7 @@ export default class Runner implements EventListenerObject {
     this.setSpeed();
     this.containerEl = document.createElement('div');
     this.containerEl.className = Runner.classes.CONTAINER;
-    this.containerEl.style.width = "66px";
+    this.containerEl.style.width = "44px";
     // Player canvas container.
     this.canvas = Runner.createCanvas(this.containerEl, this.dimensions.WIDTH,
       this.dimensions.HEIGHT, Runner.classes.PLAYER);
