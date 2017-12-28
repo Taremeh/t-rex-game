@@ -7,7 +7,7 @@ export const DEFAULT_WIDTH = 600;
 export const IS_HIDPI = window.devicePixelRatio > 1;
 
 export interface IHashMap<T> {
-    [details: string]: T;
+    [key: string]: T;
 }
 
 /**
