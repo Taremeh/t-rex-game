@@ -1,6 +1,6 @@
 # T-Rex
 
-Trying to replicate the T-Rex game of Google.
+Replicate of the T-Rex game of Google, in TypeScript.
 
 ![GOAL](./demo.gif)
 
@@ -12,7 +12,7 @@ All assets (mp3/png) are encoded into the HTML, which means that only the HTML f
 
 All codes and assets are extracted from [source code of Chromium](https://cs.chromium.org/chromium/src/components/neterror/?q=t-rex+package:%5Echromium$&dr=C) which is released under [BSD](http://www.linfo.org/bsdlicense.html).
 
-**All rights reserved by Chromium Team.**
+**All rights of this file are reserved by Chromium Team.**
 
 # Updates
 

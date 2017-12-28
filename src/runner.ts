@@ -14,19 +14,7 @@ function vibrate(duration: number) {
     window.navigator.vibrate(duration);
   }
 }
-/**
- * Create canvas element.
- * @param {HTMLElement} container Element to append canvas to.
- */
-function createCanvas(container: HTMLElement, width: number, height: number, opt_classname?: string): HTMLCanvasElement {
-  var canvas = document.createElement('canvas');
-  canvas.className = opt_classname ? Runner.classes.CANVAS + ' ' +
-    opt_classname : Runner.classes.CANVAS;
-  canvas.width = width;
-  canvas.height = height;
-  container.appendChild(canvas);
-  return canvas;
-}
+
 /**
  * Decodes the base 64 audio to ArrayBuffer used by Web Audio.
  */
@@ -64,9 +52,9 @@ interface RunnerConfig {
 
 export default class Runner implements EventListenerObject {
   public static readonly config: RunnerConfig = {
-    ACCELERATION: 0.001,
+    ACCELERATION: 0.001, // Acceleration of T-Rex
     BG_CLOUD_SPEED: 0.2,
-    BOTTOM_PAD: 10,
+    BOTTOM_PAD: 10, // Bottom padding of canvas
     CLEAR_TIME: 3000,
     CLOUD_FREQUENCY: 0.5,
     GAMEOVER_CLEAR_TIME: 750,
@@ -95,7 +83,7 @@ export default class Runner implements EventListenerObject {
    * @enum {string}
    */
   // TODO: this classes only used within this module.
-  public static readonly classes: IHashMap<string> = {
+  private static readonly classes: IHashMap<string> = {
     CANVAS: 'runner-canvas',
     CONTAINER: 'runner-container',
     CRASHED: 'crashed',
@@ -170,7 +158,6 @@ export default class Runner implements EventListenerObject {
   private horizon: Horizon = null;
   private touchController: HTMLDivElement = null;
 
-  private detailsButton: HTMLElement = null;
   private config = Runner.config;
   private dimensions = Runner.defaultDimensions;
   private canvas: HTMLCanvasElement = null;
@@ -202,30 +189,23 @@ export default class Runner implements EventListenerObject {
   // Images.
   private images: IHashMap<HTMLImageElement> = {};
   private imagesLoaded: number = 0;
-  private constructor() {
-  }
 
   public static get Instance() {
-    // Do you need arguments? Make it a regular method instead.
     return this._instance || (this._instance = new this());
   }
 
   public attachTo(outerContainerId: string, config?: RunnerConfig) {
-    this.dimensions = Runner.defaultDimensions;
     this.outerContainerEl = document.querySelector(outerContainerId);
-    this.detailsButton = this.outerContainerEl.querySelector('#details-button');// TODO: what's this?
     if (config) this.config = config;
-    this.dimensions = Runner.defaultDimensions;
     this.loadImages();
+    this.init();
   }
   /**
    * Load and cache the image assets from the page.
    */
   private loadImages() {
-    var imageSources = IS_HIDPI ? Runner.imageSources.HDPI :
-      Runner.imageSources.LDPI;
-    imageSources.forEach((img: any) => this.images[img.name] = document.getElementById(img.id) as HTMLImageElement)
-    this.init();
+    var imageSources = IS_HIDPI ? Runner.imageSources.HDPI : Runner.imageSources.LDPI;
+    imageSources.forEach((img: any) => this.images[img.name] = document.getElementById(img.id) as HTMLImageElement);
   }
 
   /**
@@ -262,15 +242,20 @@ export default class Runner implements EventListenerObject {
       this.debounceResize.bind(this));
   }
 
-  private static createCanvas(container: HTMLElement, width: number, height: number, opt_classname?: string) {
+  /**
+   * Create canvas element.
+   * @param {HTMLElement} container Element to append canvas to.
+   */
+  private static createCanvas(container: HTMLElement, width: number, height: number, classname?: string): HTMLCanvasElement {
     var canvas = document.createElement('canvas');
-    canvas.className = opt_classname ? Runner.classes.CANVAS + ' ' +
-      opt_classname : Runner.classes.CANVAS;
+    canvas.className = classname ? Runner.classes.CANVAS + ' ' +
+      classname : Runner.classes.CANVAS;
     canvas.width = width;
     canvas.height = height;
     container.appendChild(canvas);
     return canvas;
   }
+
   /**
    * Setting individual settings for debugging.
    * @param {string} setting
@@ -537,23 +522,22 @@ export default class Runner implements EventListenerObject {
    * Process keydown.
    */
   private onKeyDown(e: KeyboardEvent) {
-    if (e.target != this.detailsButton) {
-      if (!this.crashed && (Runner.keycodes.JUMP[String(e.keyCode)] ||
-        e.type == Runner.events.TOUCHSTART)) {
-        if (!this.activated) {
-          this.loadSounds();
-          this.activated = true;
-        }
-        if (!this.tRex.jumping) {
-          this.playSound(this.soundFx.BUTTON_PRESS);
-          this.tRex.startJump();
-        }
+    if (!this.crashed && (Runner.keycodes.JUMP[String(e.keyCode)] ||
+      e.type == Runner.events.TOUCHSTART)) {
+      if (!this.activated) {
+        this.loadSounds();
+        this.activated = true;
       }
-      if (this.crashed && e.type == Runner.events.TOUCHSTART &&
-        e.currentTarget == this.containerEl) {
-        this.restart();
+      if (!this.tRex.jumping) {
+        this.playSound(this.soundFx.BUTTON_PRESS);
+        this.tRex.startJump();
       }
     }
+    if (this.crashed && e.type == Runner.events.TOUCHSTART &&
+      e.currentTarget == this.containerEl) {
+      this.restart();
+    }
+
     // Speed drop, activated only when jump key is not pressed.
     if (Runner.keycodes.DUCK[e.keyCode] && this.tRex.jumping) {
       e.preventDefault();
