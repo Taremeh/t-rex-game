@@ -3,9 +3,6 @@ import { IHashMap, IS_HIDPI, FPS } from "./globals";
 /**
  * Horizon Line.
  * Consists of two connecting lines. Randomly assigns a flat / bumpy horizon.
- * @param {HTMLCanvasElement} canvas
- * @param {HTMLImage} bgImg Horizon line sprite.
- * @constructor
  */
 export default class HorizonLine {
     /**
@@ -27,12 +24,6 @@ export default class HorizonLine {
     private bumpThreshold: number = 0.5;
     constructor(private canvas: HTMLCanvasElement, private image: HTMLImageElement) {
         this.canvasCtx = canvas.getContext('2d');
-        this.sourceDimensions = {};
-        this.dimensions = HorizonLine.dimensions;
-        this.sourceXPos = [0, this.dimensions.WIDTH];
-        this.xPos = [];
-        this.yPos = 0;
-        this.bumpThreshold = 0.5;
         this.setSourceDimensions();
         this.draw();
     }

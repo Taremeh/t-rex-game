@@ -5,11 +5,6 @@ import Cloud from "./cloud";
 
 /**
 * Horizon background class.
-* @param {HTMLCanvasElement} canvas
-* @param {Array.<HTMLImageElement>} images
-* @param {object} dimensions Canvas dimensions.
-* @param {number} gapCoefficient
-* @constructor
 */
 export default class Horizon {
     private canvasCtx: CanvasRenderingContext2D;

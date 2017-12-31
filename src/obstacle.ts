@@ -73,14 +73,7 @@ export default class Obstacle {
     public followingObstacleCreated: boolean = false;
     constructor(private canvasCtx: CanvasRenderingContext2D, public typeConfig: ObstacleType, private image: HTMLImageElement, private dimensions: IHashMap<number>,
         private gapCoefficient: number, speed: number) {
-        this.gapCoefficient = gapCoefficient;
-        this.size = getRandomNum(1, Obstacle.MAX_OBSTACLE_LENGTH);
-        this.remove = false;
-        this.xPos = 0;
         this.yPos = this.typeConfig.yPos;
-        this.width = 0;
-        this.collisionBoxes = [];
-        this.gap = 0;
         this.init(speed);
     }
 
