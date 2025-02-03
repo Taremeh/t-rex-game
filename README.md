@@ -25,6 +25,8 @@ You are **not allowed** to use the following:
 
 Finally: Do not worry if you can not complete all tasks! Good luck 😀
 
+---
+
 ### Task 1: Life System
 
 Implement a system where the T-Rex has three lives, allowing it to continue after hitting obstacles as long as there is at least one life left. Display the life counter as a number next to the distance meter (top right corner).
