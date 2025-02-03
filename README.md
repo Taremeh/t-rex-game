@@ -1,22 +1,59 @@
-# T-Rex
+# Instructions
 
-Replicate of the T-Rex game of Google, in TypeScript.
+The goal of this experiment is to customize the Google Chrome T-Rex Game according to the tasks below.
 
 ![GOAL](./demo.gif)
 
-# extraction.html
+## Tasks
 
-The [extraction.html](./extraction.html) is a **stand-alone** HTML file (only 105KB) running T-Rex!
+Information before starting:
+- You will have up to **45min** time to work on these three tasks. 
+- Complete the tasks in chronological order (i.e., task 1, task 2, task 3).
+- Do not skip tasks before completing them.
+- Do not resize or move the windows during the experiment
 
-All assets (mp3/png) are encoded into the HTML, which means that only the HTML file is needed to play T-Rex!
+You are allowed to use:
 
-All codes and assets are extracted from [source code of Chromium](https://cs.chromium.org/chromium/src/components/neterror/?q=t-rex+package:%5Echromium$&dr=C) which is released under [BSD](http://www.linfo.org/bsdlicense.html).
+✅ All IDE functionality that is enabled (including code suggestions). <br/>
+✅ Web Searches, Documentations, StackOverflow etc.
 
-**All rights of this file are reserved by Chromium Team.**
+You are **not allowed** to use the following:
 
-# Updates
+❌ Do not use external generative AI tools (e.g., ChatGPT) <br/>
+❌ Do not use CoPilot Chat
 
-Version | Update
----|---
-0.0.1 | T-Rex with blinking eye
-0.1.0 | Translated to TypeScript
+
+Finally: Do not worry if you can not complete all tasks! Good luck 😀
+
+### Task 1: Life System
+
+Implement a system where the T-Rex has three lives, allowing it to continue after hitting obstacles as long as there is at least one life left. Display the life counter as a number next to the distance meter (top right corner).
+
+Definitions of Done:
+
+- Game starts with 3 lives, displaying the counter in the top-right corner.
+- After a collision with an obstacle deduct 1 life.
+- Show the GameOver screen, if no lives (i.e., 0 lives) remain.
+
+---
+
+### Task 2: Speed Control
+
+Implement the ability to increase and decrease the speed of the t-rex by using the left and right arrows ← →.
+
+
+Definitions of Done:
+
+- You can increase the speed of the t-rex by pressing the right arrow (→) and decreae the speed by pressing the left arrow (←).
+
+---
+
+### Task 3: Share Achievement
+
+In the GameOver screen, implement the option to share your current run as an image. Add a share button next to the “Start Again” button, which will ask the user to enter a name, and then trigger the download of the image. The image should contain the user name, achieved distance, and use the last frame as the background image:
+
+Definitions of Done:
+
+- Add a _Share_ button next to the _Restart_ button in the GameOver screen.
+- By clicking the _Share_ button, the user is prompted to enter a name.
+- After submitting the name, a download of the sharable image is triggered. The image should contain the user name, achieved distance, and use the last frame as the background image.
