@@ -3,11 +3,17 @@
   "settings": {
     "editor.fontSize": 18
   },
+  "codespaces": {
+    "openFiles": [
+      "README.md"
+    ]
+  },
   "customizations": {
     // Configure properties specific to VS Code.
     "vscode": {
       // Add the IDs of extensions you want installed when the container is created.
       "extensions": ["GitHub.copilot"]
     }
-  }
+  },
+  "postStartCommand": "npm run dev"
 }
