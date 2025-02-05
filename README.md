@@ -60,12 +60,15 @@ Hints:
 
 ---
 
-### Task 3: Share Achievement
+### Task 3: Customize Sharing Achievement
 
-In the GameOver screen, implement the option to share your current run as an image. Add a share button next to the “Start Again” button, which will ask the user to enter a name, and then trigger the download of the image. The image should contain the user name, achieved distance, and use the last frame as the background image:
+Currently, a share button appears below the game canvas after the game is over. By clicking the button, the current HTML canvas gets downloaded as an image. Customize this share function, such that users can add their name to the image, before downloading it. Most if not all changes can directly be made in the [SharePanel](./src/sharePanel.ts) component.
 
 Definitions of Done:
 
-- Add a _Share_ button next to the _Restart_ button in the GameOver screen.
 - By clicking the _Share_ button, the user is prompted to enter a name.
 - After submitting the name, a download of the sharable image is triggered. The image should contain the user name, achieved distance, and use the last frame as the background image.
+
+
+The final image could look like this:
+![img](./task_3_example.png)
