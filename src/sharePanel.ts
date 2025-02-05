@@ -38,11 +38,67 @@ export default class SharePanel {
   }
 
   /**
-   * Converts the canvas to a PNG image and downloads it.
+   * Converts the canvas to a PNG image (with the entered name drawn in the center) and downloads it.
    */
   private shareCanvas(): void {
-    // Convert the canvas to a PNG data URL.
-    const imageURL = this.canvas.toDataURL('image/png');
+    // Prompt the user to enter a name.
+    const name = window.prompt("Enter your name:", "Your Name") || "";
+
+    // Create an off-screen canvas to work on a copy so we don't alter the original.
+    const tempCanvas = document.createElement("canvas");
+    // Use the provided canvas dimensions if available, otherwise fallback to the canvas's own width and height.
+    tempCanvas.width = this.canvasDimensions.width || this.canvas.width;
+    tempCanvas.height = this.canvasDimensions.height || this.canvas.height;
+
+    const tempCtx = tempCanvas.getContext("2d");
+    if (!tempCtx) {
+      console.error("Could not get canvas context.");
+      return;
+    }
+
+    // Draw the original canvas onto the temporary canvas.
+    tempCtx.drawImage(this.canvas, 0, 0);
+
+    // Set text properties.
+    const fontSize = 60;
+    tempCtx.font = `${fontSize}px sans-serif`;
+    tempCtx.textAlign = "center";
+    tempCtx.textBaseline = "middle";
+
+    // Calculate the center position.
+    const centerX = tempCanvas.width / 2;
+    const centerY = (tempCanvas.height / 2) + 35;
+
+    // Only draw the text and background if a name was entered.
+    if (name.trim().length > 0) {
+      // Measure text dimensions.
+      const textMetrics = tempCtx.measureText(name);
+      // Calculate the text width and an approximate height.
+      const textWidth = textMetrics.width;
+      const textHeight = fontSize; // approximation
+
+      // Define padding around the text for the background rectangle.
+      const paddingX = 10;
+      const paddingY = 5;
+
+      // Set the rectangle's background color.
+      tempCtx.fillStyle = "#535353";
+      // Draw the rectangle centered around the text.
+      tempCtx.fillRect(
+        centerX - textWidth / 2 - paddingX,
+        centerY - textHeight / 2 - paddingY,
+        textWidth + paddingX * 2,
+        textHeight + paddingY * 2
+      );
+
+      // Set the text color to white.
+      tempCtx.fillStyle = "white";
+      // Draw the text on top of the rectangle.
+      tempCtx.fillText(name, centerX, centerY);
+    }
+
+    // Convert the modified canvas to a PNG data URL.
+    const imageURL = tempCanvas.toDataURL('image/png');
 
     // Create a temporary anchor element to facilitate the download.
     const link = document.createElement('a');
