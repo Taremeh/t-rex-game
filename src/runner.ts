@@ -4,6 +4,7 @@ import Horizon from "./horizon";
 import DistanceMeter from "./distanceMeter";
 import GameOverPanel from "./gameOverPanel";
 import { checkForCollision } from "./collision";
+import SharePanel from "./sharePanel";
 
 interface RunnerConfig {
   ACCELERATION: number,
@@ -101,6 +102,7 @@ export default class Runner implements EventListenerObject {
   private resizeTimerId_: number = null;
   private playCount: number = 0;
   private gameOverPanel: GameOverPanel = null;
+  private sharePanel: SharePanel = null;
   private playingIntro: boolean = false;
   private drawPending: boolean = false;
   private raqId: number = 0;
@@ -352,6 +354,8 @@ export default class Runner implements EventListenerObject {
     }
     // Reset the time clock.
     this.time = getTimeStamp();
+    // Show the share button.
+    this.sharePanel = new SharePanel(this.canvas, this.dimensions);
   }
   private stop() {
     this.activated = false;
@@ -382,6 +386,7 @@ export default class Runner implements EventListenerObject {
       this.distanceMeter.reset(); // TODO: original code is (this.highestScore)
       this.horizon.reset();
       this.tRex.reset();
+      this.sharePanel.remove();
       this.playSound(this.soundFx.BUTTON_PRESS);
       this.update();
     }
