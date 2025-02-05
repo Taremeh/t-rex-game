@@ -9,6 +9,7 @@ The goal of this experiment is to customize the Google Chrome T-Rex Game accordi
 Information before starting:
 - You will have up to **45min** time to work on these three tasks. 
 - Complete the tasks in chronological order (i.e., task 1, task 2, task 3).
+- Most if not all code changes can be made in the game runner file ([/src/runner.ts)](/src/runner.ts))
 - Do not skip tasks before completing them.
 - Do not resize or move the windows during the experiment.
 - You might need to reload the game preview after making changes.
@@ -38,7 +39,7 @@ Definitions of Done:
 - You can increase the speed of the t-rex by pressing the right arrow (→) and decrease the speed by pressing the left arrow (←).
 
 Hints:
-- You can find and add the key press definitions in [/src/runner.ts (L106)](/src/runner.ts#L106)
+- You can find and add the key press definitions in [/src/runner.ts (L53)](/src/runner.ts#L53)
 - Do not confuse the `KEYDOWN` event and `onKeyDown` function with pressing the down arrow key ↓. It **does not** refer to the down arrow key, but to the event of any key being pressed down!
 
 ---
@@ -52,7 +53,10 @@ Definitions of Done:
 - Game starts with 3 lives, displaying the counter in the top-right corner.
 - After a collision with an obstacle deduct 1 life.
 - Show the GameOver screen, if no lives (i.e., 0 lives) remain.
-- _Hint: After a collision, you might need to set a grace period or move the obstacle, such that the player does not get hit again instantly in the next frame_
+
+Hints: 
+- After a collision, you might need to set a grace period or move the obstacle, such that the player does not get hit again instantly in the next frame.
+- For rendering the remaining lives, you can use the [`lifeCounter`](./src/lifeCounter.ts) component and its [`lifeCounter.update()`](./src/lifeCounter.ts#L58) function. The component behaves similarly to the [`distanceMeter`](./src/distanceMeter.ts) component.
 
 ---
 
