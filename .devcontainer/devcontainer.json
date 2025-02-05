@@ -15,5 +15,5 @@
       "extensions": ["GitHub.copilot"]
     }
   },
-  "postStartCommand": "npm run dev"
+  // "postStartCommand": "npm run dev"
 }
