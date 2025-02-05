@@ -10,7 +10,8 @@ Information before starting:
 - You will have up to **45min** time to work on these three tasks. 
 - Complete the tasks in chronological order (i.e., task 1, task 2, task 3).
 - Do not skip tasks before completing them.
-- Do not resize or move the windows during the experiment
+- Do not resize or move the windows during the experiment.
+- You might need to reload the game preview after making changes.
 
 You are allowed to use:
 
@@ -27,7 +28,18 @@ Finally: Do not worry if you can not complete all tasks! Good luck 😀
 
 ---
 
-### Task 1: Life System
+### Task 1: Speed Control
+
+Implement the ability to increase and decrease the speed of the t-rex by using the left and right arrows ← →.
+
+
+Definitions of Done:
+
+- You can increase the speed of the t-rex by pressing the right arrow (→) and decreae the speed by pressing the left arrow (←).
+
+---
+
+### Task 2: Life System
 
 Implement a system where the T-Rex has three lives, allowing it to continue after hitting obstacles as long as there is at least one life left. Display the life counter as a number next to the distance meter (top right corner).
 
@@ -36,17 +48,7 @@ Definitions of Done:
 - Game starts with 3 lives, displaying the counter in the top-right corner.
 - After a collision with an obstacle deduct 1 life.
 - Show the GameOver screen, if no lives (i.e., 0 lives) remain.
-
----
-
-### Task 2: Speed Control
-
-Implement the ability to increase and decrease the speed of the t-rex by using the left and right arrows ← →.
-
-
-Definitions of Done:
-
-- You can increase the speed of the t-rex by pressing the right arrow (→) and decreae the speed by pressing the left arrow (←).
+- _Hint: After a collision, you might need to set a grace period or move the obstacle, such that the player does not get hit again instantly in the next frame_
 
 ---
 
