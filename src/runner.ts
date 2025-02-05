@@ -5,30 +5,6 @@ import DistanceMeter from "./distanceMeter";
 import GameOverPanel from "./gameOverPanel";
 import { checkForCollision } from "./collision";
 
-/**
- * Vibrate on mobile devices.
- * @param {number} duration Duration of the vibration in milliseconds.
- */
-function vibrate(duration: number) {
-  if (IS_MOBILE && window.navigator.vibrate) {
-    window.navigator.vibrate(duration);
-  }
-}
-
-/**
- * Decodes the base 64 audio to ArrayBuffer used by Web Audio.
- */
-function decodeBase64ToArrayBuffer(base64String: string) {
-  var len = (base64String.length / 4) * 3;
-  var str = atob(base64String);
-  var arrayBuffer = new ArrayBuffer(len);
-  var bytes = new Uint8Array(arrayBuffer);
-  for (var i = 0; i < len; i++) {
-    bytes[i] = str.charCodeAt(i);
-  }
-  return bytes.buffer;
-}
-
 interface RunnerConfig {
   ACCELERATION: number,
   BG_CLOUD_SPEED: number,
@@ -69,59 +45,6 @@ export default class Runner implements EventListenerObject {
     RESOURCE_TEMPLATE_ID: 'audio-resources',
     SPEED: 6,
     SPEED_DROP_COEFFICIENT: 3
-  };
-  /**
-   * Default dimensions.
-   * @enum {string}
-   */
-  public static readonly defaultDimensions = {
-    WIDTH: DEFAULT_WIDTH,
-    HEIGHT: 150
-  };
-  /**
-   * CSS class names.
-   * @enum {string}
-   */
-  // TODO: this classes only used within this module.
-  private static readonly classes: IHashMap<string> = {
-    CANVAS: 'runner-canvas',
-    CONTAINER: 'runner-container',
-    CRASHED: 'crashed',
-    ICON: 'icon-offline',
-    TOUCH_CONTROLLER: 'controller'
-  };
-  /**
-   * Image source urls.
-   * @enum {array.<object>}
-   */
-  private static readonly imageSources = {
-    LDPI: [
-      { name: 'CACTUS_LARGE', id: '1x-obstacle-large' },
-      { name: 'CACTUS_SMALL', id: '1x-obstacle-small' },
-      { name: 'CLOUD', id: '1x-cloud' },
-      { name: 'HORIZON', id: '1x-horizon' },
-      { name: 'RESTART', id: '1x-restart' },
-      { name: 'TEXT_SPRITE', id: '1x-text' },
-      { name: 'TREX', id: '1x-trex' }
-    ],
-    HDPI: [
-      { name: 'CACTUS_LARGE', id: '2x-obstacle-large' },
-      { name: 'CACTUS_SMALL', id: '2x-obstacle-small' },
-      { name: 'CLOUD', id: '2x-cloud' },
-      { name: 'HORIZON', id: '2x-horizon' },
-      { name: 'RESTART', id: '2x-restart' },
-      { name: 'TEXT_SPRITE', id: '2x-text' },
-      { name: 'TREX', id: '2x-trex' }
-    ]
-  };
-  /**
-   * Sound FX. Reference to the ID of the audio tag on interstitial page.
-   * @enum {string}
-   */
-  private static readonly sounds: any = {
-    BUTTON_PRESS: 'offline-sound-press',
-    HIT: 'offline-sound-hit',
-    SCORE: 'offline-sound-reached'
   };
   /**
    * Key code mapping.
@@ -194,20 +117,6 @@ export default class Runner implements EventListenerObject {
     return this._instance || (this._instance = new this());
   }
 
-  public attachTo(outerContainerId: string, config?: RunnerConfig) {
-    this.outerContainerEl = document.querySelector(outerContainerId);
-    if (config) this.config = config;
-    this.loadImages();
-    this.init();
-  }
-  /**
-   * Load and cache the image assets from the page.
-   */
-  private loadImages() {
-    var imageSources = IS_HIDPI ? Runner.imageSources.HDPI : Runner.imageSources.LDPI;
-    imageSources.forEach((img: any) => this.images[img.name] = document.getElementById(img.id) as HTMLImageElement);
-  }
-
   /**
    * Game initialiser.
    */
@@ -240,131 +149,6 @@ export default class Runner implements EventListenerObject {
     this.update();
     window.addEventListener(Runner.events.RESIZE,
       this.debounceResize.bind(this));
-  }
-
-  /**
-   * Create canvas element.
-   * @param {HTMLElement} container Element to append canvas to.
-   */
-  private static createCanvas(container: HTMLElement, width: number, height: number, classname?: string): HTMLCanvasElement {
-    var canvas = document.createElement('canvas');
-    canvas.className = classname ? Runner.classes.CANVAS + ' ' +
-      classname : Runner.classes.CANVAS;
-    canvas.width = width;
-    canvas.height = height;
-    container.appendChild(canvas);
-    return canvas;
-  }
-
-  /**
-   * Setting individual settings for debugging.
-   * @param {string} setting
-   * @param {*} value
-   */
-  private updateConfigSetting(setting: string, value: any) {
-    if (setting in this.config && value != undefined) {
-      this.config[setting] = value;
-      switch (setting) {
-        case 'GRAVITY':
-        case 'MIN_JUMP_HEIGHT':
-        case 'SPEED_DROP_COEFFICIENT':
-          this.tRex.config[setting] = value;
-          break;
-        case 'INITIAL_JUMP_VELOCITY':
-          this.tRex.setJumpVelocity(value);
-          break;
-        case 'SPEED':
-          this.setSpeed(value);
-          break;
-      }
-    }
-  }
-
-  /**
-   * Load and decode base 64 encoded sounds.
-   */
-  private loadSounds() {
-    if (!IS_IOS) {
-      this.audioContext = new AudioContext();
-      var resourceTemplate =
-        (document.getElementById(this.config.RESOURCE_TEMPLATE_ID) as HTMLTemplateElement).content;
-      for (var sound in Runner.sounds) {
-        var soundSrc =
-          (resourceTemplate.getElementById(Runner.sounds[sound]) as HTMLAudioElement).src;
-        soundSrc = soundSrc.substr(soundSrc.indexOf(',') + 1);
-        var buffer = decodeBase64ToArrayBuffer(soundSrc);
-        // Async, so no guarantee of order in array.
-        this.audioContext.decodeAudioData(buffer, function (index: number, audioData: AudioBuffer) {
-          this.soundFx[index] = audioData;
-        }.bind(this, sound));
-      }
-    }
-  }
-  /**
-   * Sets the game speed. Adjust the speed accordingly if on a smaller screen.
-   */
-  private setSpeed(opt_speed?: number) {
-    var speed = opt_speed || this.currentSpeed;
-    // Reduce the speed on smaller mobile screens.
-    if (this.dimensions.WIDTH < DEFAULT_WIDTH) {
-      var mobileSpeed = speed * this.dimensions.WIDTH / DEFAULT_WIDTH *
-        this.config.MOBILE_SPEED_COEFFICIENT;
-      this.currentSpeed = mobileSpeed > speed ? speed : mobileSpeed;
-    } else if (opt_speed) {
-      this.currentSpeed = opt_speed;
-    }
-  }
-
-  /**
-   * Create the touch controller. A div that covers whole screen.
-   */
-  private createTouchController() {
-    this.touchController = document.createElement('div');
-    this.touchController.className = Runner.classes.TOUCH_CONTROLLER;
-  }
-  /**
-   * Debounce the resize event.
-   */
-  private debounceResize() {
-    if (!this.resizeTimerId_) {
-      this.resizeTimerId_ =
-        setInterval(this.adjustDimensions.bind(this), 250);
-    }
-  }
-  /**
-   * Adjust game space dimensions on resize.
-   */
-  private adjustDimensions() {
-    clearInterval(this.resizeTimerId_);
-    this.resizeTimerId_ = null;
-    var boxStyles = window.getComputedStyle(this.outerContainerEl);
-    var padding = Number(boxStyles.paddingLeft.substr(0,
-      boxStyles.paddingLeft.length - 2));
-    this.dimensions.WIDTH = this.outerContainerEl.offsetWidth - padding * 2;
-    // Redraw the elements back onto the canvas.
-    if (this.canvas) {
-      this.canvas.width = this.dimensions.WIDTH;
-      this.canvas.height = this.dimensions.HEIGHT;
-      Runner.updateCanvasScaling(this.canvas);
-      this.distanceMeter.calcXPos(this.dimensions.WIDTH);
-      this.clearCanvas();
-      this.horizon.update(0, 0, true);
-      this.tRex.update(0);
-      // Outer container and distance meter.
-      if (this.activated || this.crashed) {
-        this.containerEl.style.width = this.dimensions.WIDTH + 'px';
-        this.containerEl.style.height = this.dimensions.HEIGHT + 'px';
-        this.distanceMeter.update(0, Math.ceil(this.distanceRan));
-        this.stop();
-      } else {
-        this.tRex.draw(0, 0);
-      }
-      // Game over panel.
-      if (this.crashed && this.gameOverPanel) {
-        this.gameOverPanel.updateDimensions(this.dimensions.WIDTH);
-        this.gameOverPanel.draw();
-      }
-    }
   }
   /**
    * Play the game intro.
@@ -486,39 +270,6 @@ export default class Runner implements EventListenerObject {
     }.bind(this))(e.type, Runner.events);
   }
   /**
-   * Bind relevant key / mouse / touch listeners.
-   */
-  private startListening() {
-    // Keys.
-    document.addEventListener(Runner.events.KEYDOWN, this);
-    document.addEventListener(Runner.events.KEYUP, this);
-    if (IS_MOBILE) {
-      // Mobile only touch devices.
-      this.touchController.addEventListener(Runner.events.TOUCHSTART, this);
-      this.touchController.addEventListener(Runner.events.TOUCHEND, this);
-      this.containerEl.addEventListener(Runner.events.TOUCHSTART, this);
-    } else {
-      // Mouse.
-      document.addEventListener(Runner.events.MOUSEDOWN, this);
-      document.addEventListener(Runner.events.MOUSEUP, this);
-    }
-  }
-  /**
-   * Remove all listeners.
-   */
-  private stopListening() {
-    document.removeEventListener(Runner.events.KEYDOWN, this);
-    document.removeEventListener(Runner.events.KEYUP, this);
-    if (IS_MOBILE) {
-      this.touchController.removeEventListener(Runner.events.TOUCHSTART, this);
-      this.touchController.removeEventListener(Runner.events.TOUCHEND, this);
-      this.containerEl.removeEventListener(Runner.events.TOUCHSTART, this);
-    } else {
-      document.removeEventListener(Runner.events.MOUSEDOWN, this);
-      document.removeEventListener(Runner.events.MOUSEUP, this);
-    }
-  }
-  /**
    * Process keydown.
    */
   private onKeyDown(e: KeyboardEvent) {
@@ -567,15 +318,6 @@ export default class Runner implements EventListenerObject {
       }
     } else if (this.paused && isjumpKey) {
       this.play();
-    }
-  }
-  /**
-   * RequestAnimationFrame wrapper.
-   */
-  private raq() {
-    if (!this.drawPending) {
-      this.drawPending = true;
-      this.raqId = requestAnimationFrame(this.update.bind(this));
     }
   }
   /**
@@ -644,6 +386,13 @@ export default class Runner implements EventListenerObject {
       this.update();
     }
   }
+
+  
+  /***************************************************
+   *                                                 *
+   *         GAME RUNNER HELPER FUNCTIONS            *
+   *                                                 *
+   ***************************************************/
   /**
    * Pause the game if the tab is not in focus.
    */
@@ -655,6 +404,114 @@ export default class Runner implements EventListenerObject {
     }
   }
   /**
+   * Bind relevant key / mouse / touch listeners.
+   */
+  private startListening() {
+    // Keys.
+    document.addEventListener(Runner.events.KEYDOWN, this);
+    document.addEventListener(Runner.events.KEYUP, this);
+    if (IS_MOBILE) {
+      // Mobile only touch devices.
+      this.touchController.addEventListener(Runner.events.TOUCHSTART, this);
+      this.touchController.addEventListener(Runner.events.TOUCHEND, this);
+      this.containerEl.addEventListener(Runner.events.TOUCHSTART, this);
+    } else {
+      // Mouse.
+      document.addEventListener(Runner.events.MOUSEDOWN, this);
+      document.addEventListener(Runner.events.MOUSEUP, this);
+    }
+  }
+  /**
+   * Remove all listeners.
+   */
+  private stopListening() {
+    document.removeEventListener(Runner.events.KEYDOWN, this);
+    document.removeEventListener(Runner.events.KEYUP, this);
+    if (IS_MOBILE) {
+      this.touchController.removeEventListener(Runner.events.TOUCHSTART, this);
+      this.touchController.removeEventListener(Runner.events.TOUCHEND, this);
+      this.containerEl.removeEventListener(Runner.events.TOUCHSTART, this);
+    } else {
+      document.removeEventListener(Runner.events.MOUSEDOWN, this);
+      document.removeEventListener(Runner.events.MOUSEUP, this);
+    }
+  }
+  /**
+   * RequestAnimationFrame wrapper.
+   */
+  private raq() {
+    if (!this.drawPending) {
+      this.drawPending = true;
+      this.raqId = requestAnimationFrame(this.update.bind(this));
+    }
+  }
+  public attachTo(outerContainerId: string, config?: RunnerConfig) {
+    this.outerContainerEl = document.querySelector(outerContainerId);
+    if (config) this.config = config;
+    this.loadImages();
+    this.init();
+  }
+  /**
+   * Load and cache the image assets from the page.
+   */
+  private loadImages() {
+    var imageSources = IS_HIDPI ? Runner.imageSources.HDPI : Runner.imageSources.LDPI;
+    imageSources.forEach((img: any) => this.images[img.name] = document.getElementById(img.id) as HTMLImageElement);
+  }
+  /**
+   * Default dimensions.
+   * @enum {string}
+   */
+  public static readonly defaultDimensions = {
+    WIDTH: DEFAULT_WIDTH,
+    HEIGHT: 150
+  };
+  /**
+   * CSS class names.
+   * @enum {string}
+   */
+  // TODO: this classes only used within this module.
+  private static readonly classes: IHashMap<string> = {
+    CANVAS: 'runner-canvas',
+    CONTAINER: 'runner-container',
+    CRASHED: 'crashed',
+    ICON: 'icon-offline',
+    TOUCH_CONTROLLER: 'controller'
+  };
+  /**
+   * Image source urls.
+   * @enum {array.<object>}
+   */
+  private static readonly imageSources = {
+    LDPI: [
+      { name: 'CACTUS_LARGE', id: '1x-obstacle-large' },
+      { name: 'CACTUS_SMALL', id: '1x-obstacle-small' },
+      { name: 'CLOUD', id: '1x-cloud' },
+      { name: 'HORIZON', id: '1x-horizon' },
+      { name: 'RESTART', id: '1x-restart' },
+      { name: 'TEXT_SPRITE', id: '1x-text' },
+      { name: 'TREX', id: '1x-trex' }
+    ],
+    HDPI: [
+      { name: 'CACTUS_LARGE', id: '2x-obstacle-large' },
+      { name: 'CACTUS_SMALL', id: '2x-obstacle-small' },
+      { name: 'CLOUD', id: '2x-cloud' },
+      { name: 'HORIZON', id: '2x-horizon' },
+      { name: 'RESTART', id: '2x-restart' },
+      { name: 'TEXT_SPRITE', id: '2x-text' },
+      { name: 'TREX', id: '2x-trex' }
+    ]
+  };
+  /**
+   * Sound FX. Reference to the ID of the audio tag on interstitial page.
+   * @enum {string}
+   */
+  private static readonly sounds: any = {
+    BUTTON_PRESS: 'offline-sound-press',
+    HIT: 'offline-sound-hit',
+    SCORE: 'offline-sound-reached'
+  };
+  /**
    * Play a sound.
    * @param {SoundBuffer} soundBuffer
    */
@@ -664,6 +521,64 @@ export default class Runner implements EventListenerObject {
       sourceNode.buffer = soundBuffer;
       sourceNode.connect(this.audioContext.destination);
       sourceNode.start(0);
+    }
+  }
+  /**
+   * Create canvas element.
+   * @param {HTMLElement} container Element to append canvas to.
+   */
+  private static createCanvas(container: HTMLElement, width: number, height: number, classname?: string): HTMLCanvasElement {
+    var canvas = document.createElement('canvas');
+    canvas.className = classname ? Runner.classes.CANVAS + ' ' +
+      classname : Runner.classes.CANVAS;
+    canvas.width = width;
+    canvas.height = height;
+    container.appendChild(canvas);
+    return canvas;
+  }
+
+  /**
+   * Setting individual settings for debugging.
+   * @param {string} setting
+   * @param {*} value
+   */
+  private updateConfigSetting(setting: string, value: any) {
+    if (setting in this.config && value != undefined) {
+      this.config[setting] = value;
+      switch (setting) {
+        case 'GRAVITY':
+        case 'MIN_JUMP_HEIGHT':
+        case 'SPEED_DROP_COEFFICIENT':
+          this.tRex.config[setting] = value;
+          break;
+        case 'INITIAL_JUMP_VELOCITY':
+          this.tRex.setJumpVelocity(value);
+          break;
+        case 'SPEED':
+          this.setSpeed(value);
+          break;
+      }
+    }
+  }
+
+  /**
+   * Load and decode base 64 encoded sounds.
+   */
+  private loadSounds() {
+    if (!IS_IOS) {
+      this.audioContext = new AudioContext();
+      var resourceTemplate =
+        (document.getElementById(this.config.RESOURCE_TEMPLATE_ID) as HTMLTemplateElement).content;
+      for (var sound in Runner.sounds) {
+        var soundSrc =
+          (resourceTemplate.getElementById(Runner.sounds[sound]) as HTMLAudioElement).src;
+        soundSrc = soundSrc.substr(soundSrc.indexOf(',') + 1);
+        var buffer = decodeBase64ToArrayBuffer(soundSrc);
+        // Async, so no guarantee of order in array.
+        this.audioContext.decodeAudioData(buffer, function (index: number, audioData: AudioBuffer) {
+          this.soundFx[index] = audioData;
+        }.bind(this, sound));
+      }
     }
   }
   /**
@@ -700,4 +615,96 @@ export default class Runner implements EventListenerObject {
     }
     return false;
   };
+
+  /**
+   * Sets the game speed. Adjust the speed accordingly if on a smaller screen.
+   */
+  private setSpeed(opt_speed?: number) {
+    var speed = opt_speed || this.currentSpeed;
+    // Reduce the speed on smaller mobile screens.
+    if (this.dimensions.WIDTH < DEFAULT_WIDTH) {
+      var mobileSpeed = speed * this.dimensions.WIDTH / DEFAULT_WIDTH *
+        this.config.MOBILE_SPEED_COEFFICIENT;
+      this.currentSpeed = mobileSpeed > speed ? speed : mobileSpeed;
+    } else if (opt_speed) {
+      this.currentSpeed = opt_speed;
+    }
+  }
+
+  /**
+   * Create the touch controller. A div that covers whole screen.
+   */
+  private createTouchController() {
+    this.touchController = document.createElement('div');
+    this.touchController.className = Runner.classes.TOUCH_CONTROLLER;
+  }
+  /**
+   * Debounce the resize event.
+   */
+  private debounceResize() {
+    if (!this.resizeTimerId_) {
+      this.resizeTimerId_ =
+        setInterval(this.adjustDimensions.bind(this), 250);
+    }
+  }
+  /**
+   * Adjust game space dimensions on resize.
+   */
+  private adjustDimensions() {
+    clearInterval(this.resizeTimerId_);
+    this.resizeTimerId_ = null;
+    var boxStyles = window.getComputedStyle(this.outerContainerEl);
+    var padding = Number(boxStyles.paddingLeft.substr(0,
+      boxStyles.paddingLeft.length - 2));
+    this.dimensions.WIDTH = this.outerContainerEl.offsetWidth - padding * 2;
+    // Redraw the elements back onto the canvas.
+    if (this.canvas) {
+      this.canvas.width = this.dimensions.WIDTH;
+      this.canvas.height = this.dimensions.HEIGHT;
+      Runner.updateCanvasScaling(this.canvas);
+      this.distanceMeter.calcXPos(this.dimensions.WIDTH);
+      this.clearCanvas();
+      this.horizon.update(0, 0, true);
+      this.tRex.update(0);
+      // Outer container and distance meter.
+      if (this.activated || this.crashed) {
+        this.containerEl.style.width = this.dimensions.WIDTH + 'px';
+        this.containerEl.style.height = this.dimensions.HEIGHT + 'px';
+        this.distanceMeter.update(0, Math.ceil(this.distanceRan));
+        this.stop();
+      } else {
+        this.tRex.draw(0, 0);
+      }
+      // Game over panel.
+      if (this.crashed && this.gameOverPanel) {
+        this.gameOverPanel.updateDimensions(this.dimensions.WIDTH);
+        this.gameOverPanel.draw();
+      }
+    }
+  }
+}
+
+
+/**
+ * Vibrate on mobile devices.
+ * @param {number} duration Duration of the vibration in milliseconds.
+ */
+function vibrate(duration: number) {
+  if (IS_MOBILE && window.navigator.vibrate) {
+    window.navigator.vibrate(duration);
+  }
+}
+
+/**
+ * Decodes the base 64 audio to ArrayBuffer used by Web Audio.
+ */
+function decodeBase64ToArrayBuffer(base64String: string) {
+  var len = (base64String.length / 4) * 3;
+  var str = atob(base64String);
+  var arrayBuffer = new ArrayBuffer(len);
+  var bytes = new Uint8Array(arrayBuffer);
+  for (var i = 0; i < len; i++) {
+    bytes[i] = str.charCodeAt(i);
+  }
+  return bytes.buffer;
 }
