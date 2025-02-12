@@ -17,6 +17,8 @@ The final image could look like this:
 ---
 
 <br/>
-<br/>
 
-**[> <ins>Finished task 3? Click here for the final questionnaire</ins> <](#)**
+#### Finished Task 3?
+
+1. Answer these two follow-up questions: [> **CLICK TO OPEN FORM** <](https://forms.office.com/e/XTyFD5SnKD)
+2. Answer the final post-experiment questionnaire: [> **CLICK TO OPEN FORM** <](https://forms.office.com/e/cBkNMnTGaM)

@@ -18,6 +18,8 @@ Hints:
 ---
 
 <br/>
-<br/>
 
-**[> <ins>Finished task 2? Continue with TASK 3</ins> <](./TASK_3.md)**
+#### Finished Task 2?
+
+1. Answer these two follow-up questions: [> **CLICK TO OPEN FORM** <](https://forms.office.com/e/ekQvrwcbdn)
+2. Continue with [> **TASK 3** <](./TASK_3.md)
